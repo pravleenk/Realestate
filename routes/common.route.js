@@ -4,40 +4,35 @@ const Router = express.Router();
 
 const message = require("../constant/message");
 
-const { MongoClient } = require("mongodb");
+const dbConnect=require("../db/dbConnect");
 
-const url = "mongodb://127.0.0.1:27017";
-
-const dbConnect = async () => {
-  const connect = await MongoClient.connect(url);
-  console.log("connect", connect);
-
-  const db = await connect.db("Realstate");//database connect
-
-  const collection = db.collection("users");//collection join with db
-
-  console.log("collection", collection);
-
-  return collection;//return collection as users
-};
 
 
 // const student = require("../controllers/student.controller");
 
-Router.post("/api/login", function (req, res) {
-  console.log("req data", req);
+Router.post("/api/login", async function (req, res) {
   console.log("req body data", req.body);
   const { username, password } = req.body;
   if (username && password) {
-    res.send({
-      message: message.success.loginMessage,
-      status: 1,
-      data: { username, password },
-    });
+    const users=await dbConnect();
+    const userFind=await users.findOne({username});
+    if(userFind){
+      if(userFind.password==password){
+        res.send({message:"user login successfully",status:1});
+      }
+      else{
+        res.send({message:"entered email or password is invalid,please check again",status:0});
+      }
+    }
+    else{
+      res.send({
+        message: "user not found, please register first",
+        status: 0
+      });
+    }
   } else {
-    res.send({ message: message.error.loginMessage, status: 0 });
+    res.send({ message: message.error.loginMessage+"all fields are mandatory", status: 0 });
   }
-  //json data response
 });
 
 Router.post("/api/register", async function (req, res) {
@@ -45,25 +40,36 @@ Router.post("/api/register", async function (req, res) {
   console.log("req body data", req.body);
   const { firstname, lastname, username, password } = req.body;
   if (firstname && lastname && username && password) {
+    const users = await dbConnect();
 
-    const users=await dbConnect();
-    const insertUser=users.insertOne({firstname, lastname, username, password});
-    if(insertUser){
-      res.send({
-        message: message.success.registerMessage,
-        status: 1,
-        data: { firstname, lastname, username, password },
+    const userFind = await users.findOne({ username });
+
+    console.log("userFind", userFind);
+
+    if (userFind) {
+      res.send({ message: "user already registered please login", status: 0 });
+    } else {
+      const insertUser = users.insertOne({
+        firstname,
+        lastname,
+        username,
+        password,
       });
+      if (insertUser) {
+        res.send({
+          message: message.success.registerMessage,
+          status: 1,
+          data: { firstname, lastname, username, password },
+        });
+      } else {
+        res.send({
+          message: "User registrationm failed",
+          status: 0,
+        });
+      }
     }
-    else{
-      res.send({
-        message: "User registrationm failed",
-        status: 0,
-      });
-    }
-   
   } else {
-    res.send({ message: message.error.registerMessage, status: 1 });
+    res.send({ message: message.error.registerMessage, status: 0 });
   }
   //json data response
 });
