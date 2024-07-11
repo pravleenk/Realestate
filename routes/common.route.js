@@ -38,7 +38,7 @@ Router.post("/api/login", async function (req, res) {
 Router.post("/api/register", async function (req, res) {
   console.log("req data", req);
   console.log("req body data", req.body);
-  const { firstname, lastname, username, password } = req.body;
+  const { firstname, lastname, username, password,role } = req.body;
   if (firstname && lastname && username && password) {
     const users = await dbConnect();
 
@@ -54,6 +54,7 @@ Router.post("/api/register", async function (req, res) {
         lastname,
         username,
         password,
+        role
       });
       if (insertUser) {
         res.send({
@@ -73,4 +74,33 @@ Router.post("/api/register", async function (req, res) {
   }
   //json data response
 });
+
+
+//get role api
+Router.get("/api/get-role/:email",async (req,res)=>{
+  const email=req.params.email;
+  const users = await dbConnect();
+  const userFind = await users.findOne({ username:email });
+  if(userFind){
+    res.send({message:"User role fetched successfully",status:1,role:userFind.role})
+  }
+  else{
+    res.send({message:"User role not fetched",status:0});
+  }
+})
+
+
+//user delete
+
+Router.get("/api/delete/:email",async (req,res)=>{
+  const email=req.params.email;
+  const users = await dbConnect();
+  const userDelete = await users.deleteOne({ username:email });
+  if(userDelete){
+    res.send({message:"User Deleted successfully",status:1,})
+  }
+  else{
+    res.send({message:"User not Deleted",status:0});
+  }
+})
 module.exports = Router;
