@@ -5,6 +5,23 @@ const commonRouter=require("./routes/common.route");
 const userRouter = require("./routes/user.route");
 const port = 9000;
 const app = express();
+const dbConnect=require("./db/dbConnect");
+dbConnect();
+const User=require("./models/user.model");
+console.log("user",User);
+const Property=require("./models/property.model");
+console.log("Property",Property);
+
+const data=new User({
+  firstname:"Durgesh",
+  lastname:"Prajapat",
+  username:"durgesh@gmail.com",
+  password:"123@123",
+  status:1,
+  credits:1000
+})
+
+ data.save();
 // parse incoming body data in the form of application/json
 app.use(bodyParser.json());
 
