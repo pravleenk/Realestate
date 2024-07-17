@@ -1,29 +1,30 @@
 const express = require("express");
+const path=require("path");
+const hbs=require('hbs');
+
 const bodyParser = require("body-parser"); //parse the req.body.parameter or parse the incoming request
 const studentRouter = require("./routes/student.route");
 const commonRouter=require("./routes/common.route");
 const userRouter = require("./routes/user.route");
 const port = 9000;
 const app = express();
+
+//set view-engine
+app.set('view-engine','hbs');
+app.set('views','views');
+
 const dbConnect=require("./db/dbConnect");
 dbConnect();
-const User=require("./models/user.model");
-console.log("user",User);
 const Property=require("./models/property.model");
 console.log("Property",Property);
 
-const data=new User({
-  firstname:"Durgesh",
-  lastname:"Prajapat",
-  username:"durgesh@gmail.com",
-  password:"123@123",
-  status:1,
-  credits:1000
-})
 
- data.save();
 // parse incoming body data in the form of application/json
 app.use(bodyParser.json());
+
+app.get("/loginpage",(req,res)=>{
+  res.render("login.hbs",{data:{name:"Durgesh",address:"Indore,(M.P.)"}});
+})
 
 //common router endpoint
 app.use("/",commonRouter);

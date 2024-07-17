@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Login Page</h1>
+    <ol>
+        <li>{{data.name}}
+        </li>
+        <li>
+            {{data.address}}
+        </li>
+    </ol>
+
+<form method="post" action="/api/login">
+    <div>
+        <input type="text" name="username" value="Universal"/>
+    </div>
+    <div>
+        <input type="password" name="password" value="123456789"/>
+    </div>
+    <button type="submit">Login</button>
+</form>
+</body>
+
+</html>

@@ -4,16 +4,19 @@ const Router = express.Router();
 const message = require("../constant/message");
 const dbConnect = require("../db/dbConnect");
 // const student = require("../controllers/student.controller");
+const User = require("../models/user.model");
+console.log("user=",User);
+
 Router.post("/api/login", async function (req, res) {
   console.log("req body data", req.body);
   const { username, password } = req.body;
   if (username && password) {
     const users = await dbConnect();
-    const userFind = await users.findOne({ username });
+    const userFind = await User.findOne({ username });
     if (userFind) {
       bcrypt.compare(password, userFind.password, function (err, result) {
-        console.log("error",err);
-        console.log("result",result);
+        console.log("error", err);
+        console.log("result", result);
         if (result) {
           res.send({ message: "user login successfully", status: 1 });
         } else {
@@ -45,13 +48,12 @@ Router.post("/api/register", async function (req, res) {
     const salt = bcrypt.genSaltSync(10);
     const hashPassword = bcrypt.hashSync(password, salt);
     console.log("hashPassword=", hashPassword);
-    const users = await dbConnect();
-    const userFind = await users.findOne({ username });
+    const userFind = await User.findOne({ username });
     console.log("userFind", userFind);
     if (userFind) {
       res.send({ message: "user already registered please login", status: 0 });
     } else {
-      const insertUser = users.insertOne({
+      const insertUser = new User({
         firstname,
         lastname,
         username,
@@ -60,7 +62,9 @@ Router.post("/api/register", async function (req, res) {
         credits: 1000,
         status: 1, //1=Active,0=InActive
       });
-      if (insertUser) {
+      const isInserted=await insertUser.save();
+      console.log("isInserted",isInserted);
+      if (isInserted) {
         res.send({
           message: message.success.registerMessage,
           status: 1,
